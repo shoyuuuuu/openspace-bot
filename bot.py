@@ -21,7 +21,7 @@ class PresentationModal(discord.ui.Modal):
             max_length=100
         ))
         self.add_item(discord.ui.InputText(
-            label="Ton son en 3 mots",
+            label="Ton son en quelques mots",
             placeholder="Ex : sombre, lo-fi, cinématique",
             required=True,
             max_length=60
