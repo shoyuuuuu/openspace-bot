@@ -24,19 +24,20 @@ class PresentationModal(discord.ui.Modal):
             label="Ton son en quelques mots",
             placeholder="Ex : sombre, lo-fi, cinématique",
             required=True,
-            max_length=60
-        ))
-        self.add_item(discord.ui.InputText(
-            label="Basé à",
-            placeholder="Ville ou région",
-            required=False,
-            max_length=50
+            max_length=100
         ))
         self.add_item(discord.ui.InputText(
             label="Un lien",
             placeholder="Spotify, SoundCloud, Instagram...",
             required=False,
             max_length=200
+        ))
+        self.add_item(discord.ui.InputText(
+            label="Un mot pour te présenter",
+            placeholder="Dis ce que tu veux...",
+            required=False,
+            style=discord.InputTextStyle.long,
+            max_length=300
         ))
 
     async def callback(self, interaction: discord.Interaction):
@@ -52,17 +53,17 @@ class PresentationModal(discord.ui.Modal):
             return
 
         values = [child.value for child in self.children]
-        city_line = f"\n📍 Basé à : {values[3]}" if values[3] else ""
-        link_line = f"\n🔗 {values[4]}" if values[4] else ""
+        link_line = f"\n{values[3]}" if values[3] else ""
+        note_line = f"\n\n{values[4]}" if values[4] else ""
 
         message = (
             f"📋 **Nouvelle recrue**\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"**{values[0]}**\n"
-            f"💼 {values[1]}\n"
-            f"🎵 {values[2]}"
-            f"{city_line}"
-            f"{link_line}\n"
+            f"Nom / Alias : **{values[0]}**\n"
+            f"Ce que tu fais : {values[1]}\n"
+            f"Ton son : {values[2]}"
+            f"{link_line}"
+            f"{note_line}\n"
             f"━━━━━━━━━━━━━━━━━━━━━━"
         )
 
