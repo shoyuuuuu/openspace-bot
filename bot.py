@@ -1,46 +1,45 @@
 import discord
-from discord import app_commands
 import os
 
-intents = discord.Intents.default()
-client = discord.Client(intents=intents)
-tree = app_commands.CommandTree(client)
+bot = discord.Bot()
 
 PRESENTATION_CHANNEL_NAME = "présentations"
 
-class PresentationModal(discord.ui.Modal, title="📋 Nouvelle recrue — Open Space"):
-    alias = discord.ui.TextInput(
-        label="Nom / Alias",
-        placeholder="Comment tu t'appelles ?",
-        required=True,
-        max_length=50
-    )
-    role = discord.ui.TextInput(
-        label="Ce que tu fais",
-        placeholder="Rappeur, beatmaker, auteur...",
-        required=True,
-        max_length=100
-    )
-    sound = discord.ui.TextInput(
-        label="Ton son en 3 mots",
-        placeholder="Ex : sombre, lo-fi, cinématique",
-        required=True,
-        max_length=60
-    )
-    city = discord.ui.TextInput(
-        label="Basé à",
-        placeholder="Ville ou région",
-        required=False,
-        max_length=50
-    )
-    link = discord.ui.TextInput(
-        label="Un lien",
-        placeholder="Spotify, SoundCloud, Instagram...",
-        required=False,
-        max_length=200
-    )
+class PresentationModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="📋 Nouvelle recrue — Open Space")
+        self.add_item(discord.ui.InputText(
+            label="Nom / Alias",
+            placeholder="Comment tu t'appelles ?",
+            required=True,
+            max_length=50
+        ))
+        self.add_item(discord.ui.InputText(
+            label="Ce que tu fais",
+            placeholder="Rappeur, beatmaker, auteur...",
+            required=True,
+            max_length=100
+        ))
+        self.add_item(discord.ui.InputText(
+            label="Ton son en 3 mots",
+            placeholder="Ex : sombre, lo-fi, cinématique",
+            required=True,
+            max_length=60
+        ))
+        self.add_item(discord.ui.InputText(
+            label="Basé à",
+            placeholder="Ville ou région",
+            required=False,
+            max_length=50
+        ))
+        self.add_item(discord.ui.InputText(
+            label="Un lien",
+            placeholder="Spotify, SoundCloud, Instagram...",
+            required=False,
+            max_length=200
+        ))
 
-    async def on_submit(self, interaction: discord.Interaction):
+    async def callback(self, interaction: discord.Interaction):
         channel = discord.utils.get(
             interaction.guild.text_channels,
             name=PRESENTATION_CHANNEL_NAME
@@ -52,15 +51,16 @@ class PresentationModal(discord.ui.Modal, title="📋 Nouvelle recrue — Open S
             )
             return
 
-        city_line = f"\n📍 Basé à : {self.city.value}" if self.city.value else ""
-        link_line = f"\n🔗 {self.link.value}" if self.link.value else ""
+        values = [child.value for child in self.children]
+        city_line = f"\n📍 Basé à : {values[3]}" if values[3] else ""
+        link_line = f"\n🔗 {values[4]}" if values[4] else ""
 
         message = (
             f"📋 **Nouvelle recrue**\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"**{self.alias.value}**\n"
-            f"💼 {self.role.value}\n"
-            f"🎵 {self.sound.value}"
+            f"**{values[0]}**\n"
+            f"💼 {values[1]}\n"
+            f"🎵 {values[2]}"
             f"{city_line}"
             f"{link_line}\n"
             f"━━━━━━━━━━━━━━━━━━━━━━"
@@ -72,20 +72,16 @@ class PresentationModal(discord.ui.Modal, title="📋 Nouvelle recrue — Open S
             ephemeral=True
         )
 
-@tree.command(
-    name="présentation",
-    description="Remplis ta fiche et rejoins l'équipe"
-)
-async def presentation(interaction: discord.Interaction):
-    await interaction.response.send_modal(PresentationModal())
+@bot.slash_command(name="présentation", description="Remplis ta fiche et rejoins l'équipe")
+async def presentation(ctx: discord.ApplicationContext):
+    await ctx.send_modal(PresentationModal())
 
-@client.event
+@bot.event
 async def on_ready():
-    await tree.sync()
-    print(f"Open Space Bot connecté en tant que {client.user}")
+    print(f"Open Space Bot connecté en tant que {bot.user}")
 
 token = os.environ.get("DISCORD_TOKEN")
 if not token:
     raise ValueError("DISCORD_TOKEN manquant")
 
-client.run(token)
+bot.run(token)
