@@ -78,6 +78,7 @@ async def presentation(ctx: discord.ApplicationContext):
 
 @bot.event
 async def on_ready():
+    await bot.sync_commands()
     print(f"Open Space Bot connecté en tant que {bot.user}")
 
 token = os.environ.get("DISCORD_TOKEN")
