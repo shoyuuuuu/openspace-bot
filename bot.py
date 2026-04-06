@@ -79,7 +79,10 @@ async def presentation(ctx: discord.ApplicationContext):
 
 @bot.event
 async def on_ready():
-    await bot.sync_commands(guild_ids=None)
+    guild = discord.utils.get(bot.guilds, name="Open Space")
+    if guild:
+        await bot.sync_commands(guild_ids=[guild.id])
+        print(f"Commandes synchronisées sur {guild.name}")
     print(f"Open Space Bot connecté en tant que {bot.user}")
 
 token = os.environ.get("DISCORD_TOKEN")
